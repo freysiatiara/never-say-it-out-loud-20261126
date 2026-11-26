@@ -26,6 +26,15 @@ def main():
     with open(path, "w", encoding="utf-8", newline="") as handle:
         handle.write(text)
     os.chmod(path, 0o644)
+    with open(path, "rb") as handle:
+        raw = handle.read()
+    if raw != text.encode("utf-8"):
+        raise SystemExit("entry fails gate: read-back bytes differ from written data")
+    decoded = raw.decode("utf-8")
+    if decoded != text:
+        raise SystemExit("entry fails gate: read-back text differs from entry line")
+    if "\n" in decoded or "\r" in decoded or any(ord(ch) < 0x20 for ch in decoded):
+        raise SystemExit("entry fails gate: entry must be a single line with no control characters")
 
 
 if __name__ == "__main__":
